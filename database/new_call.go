@@ -6,9 +6,11 @@ import (
 )
 
 func NewCall(caller types.PID, target types.PID) {
-	_, err := Postgres.Exec(`INSERT INTO ongoingcalls (caller_pid, target_pid, ringing) VALUES ($1, $2, $3);`, caller, target, true)
+	_, err := Postgres.Exec(`
+		INSERT INTO ongoingcalls (caller_pid, target_pid, ringing) VALUES ($1, $2, true)
+		ON CONFLICT (caller_pid) DO UPDATE SET target_pid = EXCLUDED.target_pid, ringing = true;`,
+		caller, target)
 	if err != nil {
 		globals.Logger.Critical(err.Error())
-		return
 	}
 }

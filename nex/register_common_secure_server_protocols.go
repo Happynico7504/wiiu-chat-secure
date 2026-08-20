@@ -19,6 +19,7 @@ func registerCommonSecureServerProtocols() {
 	secureProtocol := secure.NewProtocol()
 	local_globals.SecureEndpoint.RegisterServiceProtocol(secureProtocol)
 	secure := common_secure.NewCommonProtocol(secureProtocol)
+	secure.EnableInsecureRegister()
 	secure.CreateReportDBRecord = func(pid types.PID, reportID types.UInt32, reportData types.QBuffer) error {
 		return nil
 	}

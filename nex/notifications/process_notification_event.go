@@ -5,6 +5,7 @@ import (
 	"github.com/PretendoNetwork/nex-go/v2/constants"
 	"github.com/PretendoNetwork/nex-go/v2/types"
 	notifications "github.com/PretendoNetwork/nex-protocols-go/v2/notifications"
+	notifications_constants "github.com/PretendoNetwork/nex-protocols-go/v2/notifications/constants"
 	notifications_types "github.com/PretendoNetwork/nex-protocols-go/v2/notifications/types"
 	"github.com/PretendoNetwork/wiiu-chat/globals"
 )
@@ -13,9 +14,9 @@ func ProcessNotificationEvent(callID uint32, packet nex.PacketInterface, uiType 
 	event := notifications_types.NewNotificationEvent()
 
 	event.PIDSource = packet.Sender().PID() // Sender PID
-	event.Type = uiType                     // Notification type
-	event.Param1 = uiParam1                 // Gathering ID
-	event.Param2 = uiParam2                 // Recipient PID
+	event.Type = notifications_constants.NotificationEvents(uiType)
+	event.Param1 = types.UInt64(uiParam1)
+	event.Param2 = types.UInt64(uiParam2)
 	event.StrParam = strParam               // Unknown
 
 	eventObject := nex.NewByteStreamOut(globals.SecureServer.LibraryVersions, globals.SecureServer.ByteStreamSettings)

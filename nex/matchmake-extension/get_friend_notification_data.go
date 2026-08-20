@@ -7,26 +7,24 @@ import (
 	"github.com/PretendoNetwork/wiiu-chat/globals"
 
 	matchmake_extension "github.com/PretendoNetwork/nex-protocols-go/v2/matchmake-extension"
-	notifications "github.com/PretendoNetwork/nex-protocols-go/v2/notifications"
+	notifications_constants "github.com/PretendoNetwork/nex-protocols-go/v2/notifications/constants"
 	notifications_types "github.com/PretendoNetwork/nex-protocols-go/v2/notifications/types"
 )
 
-func GetFriendNotificationData(err error, packet nex.PacketInterface, callID uint32, uiType types.Int32) (*nex.RMCMessage, *nex.Error) {
+func GetFriendNotificationData(err error, packet nex.PacketInterface, callID uint32, uiType notifications_constants.NotificationCategorySigned) (*nex.RMCMessage, *nex.Error) {
 	dataList := types.NewList[notifications_types.NotificationEvent]()
+	myPID := packet.Sender().PID()
 
-	caller, target, ringing := database.GetCallInfoByTarget(packet.Sender().PID())
-
-	// TODO: Multiple calls. Wii U Chat can handle it, but we don't support it yet
-	if caller != 0 && target == packet.Sender().PID() && ringing {
-		// Being called
-		notificationType := notifications.BuildNotificationType(notifications.NotificationCategories.RequestJoinGathering, notifications.NotificationSubTypes.RequestJoinGathering.None)
+	// Active incoming call (still ringing).
+	caller, target, ringing := database.GetCallInfoByTarget(myPID)
+	if caller != 0 && target == myPID && ringing {
+		notificationType := notifications_constants.NotificationCategoryGameNotification1.Build()
 
 		notification := notifications_types.NewNotificationEvent()
-
 		notification.PIDSource = caller
-		notification.Type = types.NewUInt32(notificationType)
-		notification.Param1 = types.NewUInt32(uint32(caller))
-		notification.Param2 = types.NewUInt32(uint32(target))
+		notification.Type = notificationType
+		notification.Param1 = types.UInt64(uint64(caller))
+		notification.Param2 = types.UInt64(uint64(target))
 		notification.StrParam = "Invite Request"
 
 		dataList = append(dataList, notification)

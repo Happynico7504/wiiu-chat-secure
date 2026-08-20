@@ -5,10 +5,38 @@ import "github.com/PretendoNetwork/wiiu-chat/globals"
 func InitPostgres() {
 	var err error
 
+	_, err = Postgres.Exec(`
+		CREATE TABLE IF NOT EXISTS nex_sessions (
+			token      TEXT PRIMARY KEY,
+			ip         TEXT NOT NULL,
+			pid        INTEGER,
+			expires_at TIMESTAMPTZ NOT NULL
+		);
+		CREATE TABLE IF NOT EXISTS nex_accounts (
+			pid          INTEGER PRIMARY KEY,
+			username     TEXT UNIQUE NOT NULL,
+			nex_password TEXT NOT NULL
+		);`)
+	if err != nil {
+		globals.Logger.Critical(err.Error())
+		return
+	}
+
 	_, err = Postgres.Exec(`CREATE TABLE IF NOT EXISTS ongoingcalls (
 		caller_pid integer UNIQUE PRIMARY KEY,
 		target_pid integer,
 		ringing bool
+	)`)
+	if err != nil {
+		globals.Logger.Critical(err.Error())
+		return
+	}
+
+	_, err = Postgres.Exec(`CREATE TABLE IF NOT EXISTS missed_calls (
+		id         SERIAL PRIMARY KEY,
+		caller_pid integer NOT NULL,
+		target_pid integer NOT NULL,
+		called_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 	)`)
 	if err != nil {
 		globals.Logger.Critical(err.Error())

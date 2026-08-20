@@ -12,8 +12,11 @@ import (
 )
 
 func registerCommonAuthenticationServerProtocols() {
+	// * Create a protocol instance solely to populate globals.CommonAuthProtocol with
+	// * metadata (SecureStationURL, BuildName, SecureServerAccount). The protocol itself
+	// * is NOT registered with the endpoint — StartAuthenticationServer registers a single
+	// * protocol with the correct LoginEx override (customLoginEx) instead.
 	ticketGrantingProtocol := ticket_granting.NewProtocol()
-	globals.AuthenticationEndpoint.RegisterServiceProtocol(ticketGrantingProtocol)
 	commonTicketGrantingProtocol := common_ticket_granting.NewCommonProtocol(ticketGrantingProtocol)
 
 	port, _ := strconv.Atoi(os.Getenv("PN_WUC_SECURE_SERVER_PORT"))
@@ -31,4 +34,6 @@ func registerCommonAuthenticationServerProtocols() {
 	commonTicketGrantingProtocol.SecureStationURL = secureStationURL
 	commonTicketGrantingProtocol.BuildName = types.NewString(serverBuildString)
 	commonTicketGrantingProtocol.SecureServerAccount = globals.SecureServerAccount
+
+	globals.CommonAuthProtocol = commonTicketGrantingProtocol
 }
