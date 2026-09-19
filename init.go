@@ -47,14 +47,22 @@ func init() {
 		os.Exit(0)
 	}
 
-	kerberosPassword := make([]byte, 0x10)
-	_, err = rand.Read(kerberosPassword)
-	if err != nil {
-		globals.Logger.Error("Error generating Kerberos password")
-		os.Exit(0)
-	}
+	// The password tickets are encrypted with. When PN_WUC_KERBEROS_PASSWORD is set (start.sh sets
+	// it) it is used as is, so the relay hub can hand the same secret to a regional relay's auth
+	// server: a ticket issued there must be decryptable here. Without it, a random one is
+	// generated at every start as before.
+	if fromEnv := os.Getenv("PN_WUC_KERBEROS_PASSWORD"); strings.TrimSpace(fromEnv) != "" {
+		globals.KerberosPassword = fromEnv
+	} else {
+		kerberosPassword := make([]byte, 0x10)
+		_, err = rand.Read(kerberosPassword)
+		if err != nil {
+			globals.Logger.Error("Error generating Kerberos password")
+			os.Exit(0)
+		}
 
-	globals.KerberosPassword = string(kerberosPassword)
+		globals.KerberosPassword = string(kerberosPassword)
+	}
 
 	globals.AuthenticationServerAccount = nex.NewAccount(types.NewPID(1), "Quazal Authentication", globals.KerberosPassword, false)
 	globals.SecureServerAccount = nex.NewAccount(types.NewPID(2), "Quazal Rendez-Vous", globals.KerberosPassword, false)
