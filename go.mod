@@ -42,3 +42,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251029180050-ab9386a59fda // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 )
+
+// Stock nex-go v2.3.1 plus the hooks the Wii U Chat edge relay needs (see third_party/nex-go-v2/edge_hooks.go):
+// an OutHook on a connection, virtual connections for sessions terminated on a relay, and plain RTT.
+replace github.com/PretendoNetwork/nex-go/v2 => ./third_party/nex-go-v2

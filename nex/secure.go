@@ -37,5 +37,6 @@ func StartSecureServer() {
 
 	port, _ := strconv.Atoi(os.Getenv("PN_WUC_SECURE_SERVER_PORT"))
 
+	startEdgeServer() // after the handlers above are registered: relay-terminated sessions use them
 	globals.SecureServer.Listen(port)
 }
