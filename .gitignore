@@ -31,3 +31,6 @@ log
 
 # macOS nonsense
 .DS_Store
+# Revivetendo runtime artifacts
+/wiiu-chat
+/edge.enabled
